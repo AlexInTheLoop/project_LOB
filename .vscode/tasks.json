@@ -1,0 +1,27 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Compile and Run C++",
+            "type": "shell",
+            "command": "g++",
+            "args": [
+                "main.cpp",
+                "order_generator.cpp",
+                "OrderBookManager.cpp",
+                "OrderBookSimulator.cpp",
+                "-o",
+                "LOB_simulation",
+                "-Wall",
+                "-Wextra",
+                "-std=c++17"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": ["$gcc"],
+            "detail": "Custom task to compile and run a C++ program with multiple source files."
+        }
+    ]
+}
