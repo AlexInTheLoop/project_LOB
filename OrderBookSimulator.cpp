@@ -2,6 +2,8 @@
 
 using namespace std;
 
+int TIME_INTERVAL{30};
+
 OrderBookSimulator::OrderBookSimulator(OrderBookManager& ob): orderBook(ob) {
     const auto& stats{orderBook.getStatistics()};
     for (const auto& [asset, _] : stats) {
@@ -15,7 +17,7 @@ void OrderBookSimulator::initializeGenerators() {
     for (const auto& asset : assets) {
         generators[asset] = mt19937(rd());
         volumeDists[asset] = uniform_real_distribution<>(0.1, 1000.0);
-        marketLimitDists[asset] = bernoulli_distribution(0.75);
+        marketLimitDists[asset] = bernoulli_distribution(0.5);
         buySellDists[asset] = bernoulli_distribution(0.5);
         currentOrderIds[asset] = 1000;
     }
@@ -31,8 +33,7 @@ Order OrderBookSimulator::generateOrder(const string& asset, double minPrice,
     order.type = isBuyOrder ? "BUY" : "SELL";
     order.isShortSell = false;
 
-    uniform_real_distribution<> volumeRange(minPrice, maxPrice);
-    order.quantity = volumeRange(generators[asset]);
+    order.quantity = volumeDists[asset](generators[asset]);
 
     bool isMarketOrder{marketLimitDists[asset](generators[asset])};
     string orderCategory = isMarketOrder ? "MARKET" : "LIMIT";
@@ -40,9 +41,9 @@ Order OrderBookSimulator::generateOrder(const string& asset, double minPrice,
     if (isMarketOrder) {
         order.price = isBuyOrder ? maxPrice : minPrice;
     } else {
-        normal_distribution<> normalDist(midPrice, spread / 2.0);
+        normal_distribution<> normalDist(midPrice, spread);
         order.price = normalDist(generators[asset]);
-        
+
         if (isBuyOrder && order.price >= maxPrice) {
             order.price = maxPrice;
             orderCategory = "MARKET";
@@ -61,13 +62,13 @@ Order OrderBookSimulator::generateOrder(const string& asset, double minPrice,
     order.timestamp = ss.str();
     order.dateTime = now;
 
-    cout << "\n=== Nouvel Ordre sur " << asset << " ===" << endl;
-    cout << "Temps : " << order.timestamp << endl;
+    cout << "\n==== Nouvel Ordre pour " << asset << " ====" << endl;
+    cout << "Horodatage : " << order.timestamp << endl;
     cout << "Type : " << order.type << " (" << orderCategory << ")" << endl;
     cout << "Prix : " << fixed << setprecision(2) << order.price << endl;
-    cout << "Quantite : " << order.quantity << endl;
+    cout << "Quantité : " << order.quantity << endl;
     cout << "Montant total : " << order.totalAmount << endl;
-    cout << "=========================" << endl;
+    cout << "================================" << endl;
 
     return order;
 }
@@ -75,13 +76,12 @@ Order OrderBookSimulator::generateOrder(const string& asset, double minPrice,
 void OrderBookSimulator::simulateRealtime(int durationSeconds) {
     auto startTime{chrono::steady_clock::now()};
     bool running{true};
-
-    cout << "Debut de la simulation multi-actifs" << endl;
-    cout << "Actifs simules : ";
+    cout << "Début de la simulation\n" << endl;
+    cout << "Actifs simulés : ";
     for (const auto& asset : assets) {
         cout << asset << " ";
     }
-    cout << "\nAppuyer sur ctrl+C pour arreter la simulation" << endl;
+    cout << "\nEntrer Ctrl+C pour stopper la simulation" << endl;
 
     while (running) {
         const auto& stats{orderBook.getStatistics()};
@@ -102,9 +102,7 @@ void OrderBookSimulator::simulateRealtime(int durationSeconds) {
             orderBook.processNewOrder(newOrder);
             orderBook.displayOrderBook(asset);
         }
-        
-        this_thread::sleep_for(chrono::seconds(10));
-
+        this_thread::sleep_for(chrono::seconds(TIME_INTERVAL));
         if (durationSeconds > 0) {
             auto currentTime{chrono::steady_clock::now()};
             auto elapsed{chrono::duration_cast<chrono::seconds>(currentTime - startTime).count()};

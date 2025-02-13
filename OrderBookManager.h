@@ -50,8 +50,8 @@ class OrderBookManager {
 private:
     string csvPath;
     vector<Order> orders;
-    map<string, multimap<double, OrderBookEntry, greater<>>> bidBooks;
-    map<string, multimap<double, OrderBookEntry>> askBooks;
+    map<string, map<double, OrderBookEntry, greater<>>> bidBooks;
+    map<string, map<double, OrderBookEntry>> askBooks;
     map<string, OrderBookStatistics> statistics;
 
     chrono::system_clock::time_point parseTimestamp(const string& timestamp);

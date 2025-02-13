@@ -6,7 +6,7 @@
 using namespace std;
 
 int main() {
-    int nbAssets = 3;
+    int nbAssets{3};
     vector<int> nbOrders {100, 150, 200};
     vector<double> prices {150.0, 650.0, 300.0};
     vector<double> shortRatios {0.1, 0.2, 0.15};
@@ -17,7 +17,7 @@ int main() {
     try {
         manager.loadOrders();
         manager.processOrders();
-        
+    
         cout << "\nCarnet(s) d'ordres :" << endl;
         manager.displayOrderBooks();
         manager.saveOrderBooks("output");
