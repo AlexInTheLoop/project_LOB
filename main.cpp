@@ -28,7 +28,7 @@ int main() {
         simulator.simulateRealtime(3600);
         
     } catch (const exception& e) {
-        cerr << "Error: " << e.what() << endl;
+        cerr << "Erreur : " << e.what() << endl;
         return 1;
     }
 

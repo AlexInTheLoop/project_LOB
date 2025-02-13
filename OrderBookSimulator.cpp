@@ -65,8 +65,8 @@ Order OrderBookSimulator::generateOrder(const string& asset, double minPrice,
     cout << "\n==== Nouvel Ordre pour " << asset << " ====" << endl;
     cout << "Horodatage : " << order.timestamp << endl;
     cout << "Type : " << order.type << " (" << orderCategory << ")" << endl;
-    cout << "Prix : " << fixed << setprecision(2) << order.price << endl;
-    cout << "Quantité : " << order.quantity << endl;
+    cout << "Prix : " << fixed << setprecision(3) << order.price << endl;
+    cout << "Quantite : " << order.quantity << endl;
     cout << "Montant total : " << order.totalAmount << endl;
     cout << "================================" << endl;
 

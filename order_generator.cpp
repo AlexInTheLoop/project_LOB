@@ -28,7 +28,7 @@ string generateRandomTimestamp() {
     int minute = static_cast<int>(generateRandomUniform(0, 60));
     int second = static_cast<int>(generateRandomUniform(0, 60));
 
-    ostringstream timestamp; // ostringstream plus efficace que les Compound Assignment Operators
+    ostringstream timestamp;
     timestamp << "2025-02-";
     if (day < 10) timestamp << "0";
     timestamp << day << " ";

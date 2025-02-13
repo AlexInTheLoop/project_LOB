@@ -156,7 +156,7 @@ void OrderBookManager::displayOrderBook(const string& asset) {
 
     const auto& stats{statistics[asset]};
     cout << "\nStatistiques " << asset << ":\n";
-    cout << fixed << setprecision(2);
+    cout << fixed << setprecision(3);
     cout << "Prix d'execution moyen : " << stats.averageExecutedPrice << "\n";
     cout << "Volume total echange : " << stats.totalTradedQuantity << "\n";
     cout << "Montant total echange : " << fixed << stats.totalTradedAmount << "\n";
