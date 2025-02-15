@@ -39,7 +39,7 @@ Order OrderBookSimulator::generateOrder(const string& asset, double minPrice,
     if (isMarketOrder) {
         order.price = isBuyOrder ? maxPrice : minPrice;
     } else {
-        normal_distribution<> normalDist(midPrice, 1);
+        normal_distribution<> normalDist(midPrice, spread*3);
         order.price = normalDist(generators[asset]);
 
         if (isBuyOrder && order.price >= maxPrice) {
@@ -74,8 +74,8 @@ Order OrderBookSimulator::generateOrder(const string& asset, double minPrice,
 void OrderBookSimulator::simulateRealtime(int durationSeconds) {
     auto startTime{chrono::steady_clock::now()};
     bool running{true};
-    cout << "Début de la simulation\n" << endl;
-    cout << "Actifs simulés : ";
+    cout << "Debut de la simulation\n" << endl;
+    cout << "Actifs disponibles : ";
     for (const auto& asset : assets) {
         cout << asset << " ";
     }

@@ -48,14 +48,14 @@ BOOL WINAPI ConsoleHandler(DWORD dwCtrlType) {
 
 int main() {
     // 1. Generate initial orders (stored in "transactions.csv")
-    int nbAssets = 3;
-    vector<int> nbOrders {100, 150, 200};
-    vector<double> prices {150.0, 650.0, 300.0};
-    vector<double> shortRatios {0.1, 0.2, 0.15};
+    int nbAssets = 8;
+    vector<int> nbOrders {100, 150, 200, 300, 450, 500, 600, 700};
+    vector<double> prices {150.0, 650.0, 300.0, 450.0, 200.0, 100.0, 500.0, 800.0};
+    vector<double> shortRatios {0.1, 0.2, 0.15, 0.25, 0.3, 0.35, 0.4, 0.45};
     generateOrders(nbAssets, nbOrders, prices, shortRatios, "transactions.csv");
 
     // 2. Initialize OrderBookManager and process the orders
-    OrderBookManager manager("data/transactions.csv");
+    OrderBookManager manager("transactions.csv");
     try {
         manager.loadOrders();
         manager.processOrders();
@@ -91,11 +91,11 @@ int main() {
 
     while (true) {
         cout << "\n===== Current Order Book =====" << endl;
-        for (const auto &statPair : manager.getStatistics()) {
-            string asset = statPair.first;
-            manager.displayOrderBook(asset);
-        }
+        manager.displayOrderBooks();
 
+        OrderBookSimulator simulator(manager);
+        simulator.simulateRealtime(3600);
+        
         cout << "\n----- Bank Account Status -----" << endl;
         cout << "Balance: " << userAccount.getBalance() << " USD" << endl;
 
