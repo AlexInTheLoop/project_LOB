@@ -171,7 +171,12 @@ void OrderBookManager::displayOrderBook(const string& asset) {
 }
 
 void OrderBookManager::saveOrderBooks(const string& outputPath) {
-
+    #ifdef _WIN32
+        system(("mkdir " + outputPath + " 2> nul").c_str());
+    #else
+        system(("mkdir -p " + outputPath).c_str());
+    #endif
+    
     for (const auto& asset : bidBooks) {
         string filename = outputPath + "/" + asset.first + "_orderbook.csv";
         ofstream file(filename, ios::out | ios::trunc);
