@@ -11,6 +11,8 @@
 #include <iomanip>
 #include <sstream>
 
+#include "OrderBookManager.h" 
+
 using namespace std;
 
 extern const vector<string> ASSETS;
@@ -22,4 +24,12 @@ string generateRandomTimestamp();
 void generateOrders(int nbAssets, const vector<int>& nbOrders,
                     const vector<double>& prices, const vector<double>& shortRatios = {0.1},
                     const string& outputFilename = "orders.csv");
+                    
+std::vector<Order> generateOrdersAndReturn(
+            int nbAssets,
+            const std::vector<int>& nbOrders,
+            const std::vector<double>& prices,
+            const std::vector<double>& shortRatios = {0.1},
+            const std::string& outputFilename= "orders.csv"
+);
 #endif

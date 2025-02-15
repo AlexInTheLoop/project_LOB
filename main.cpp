@@ -1,6 +1,15 @@
 #include <windows.h>
 #undef byte
 
+#include <iostream>
+#include <chrono>
+#include <thread>
+#include <string>
+#include <csignal>
+#include <cstdlib>
+#include <mutex>
+
+// Project headers
 #include "OrderGenerator.h"
 #include "OrderBookManager.h"
 #include "OrderBookSimulator.h"
@@ -9,125 +18,144 @@
 #include "TransactionResolver.h"
 #include "OrderInputHandler.h"
 
-#include <iostream>
-#include <chrono>
-#include <thread>
-#include <string>
-#include <csignal>
-#include <cstdlib>
-
-using namespace std;
-
 // Global pointers for signal handling
-BankAccount* g_userAccount = nullptr;
-Portfolio* g_userPortfolio = nullptr;
+BankAccount* g_userAccount  = nullptr;
+Portfolio*   g_userPortfolio= nullptr;
+OrderBookManager* g_manager = nullptr;
 
-// This function will be called when certain console events occur (e.g., close window, Ctrl+C).
+// Global mutex to protect console output from multiple threads
+std::mutex g_consoleMutex;
+
+// Windows console handler
 BOOL WINAPI ConsoleHandler(DWORD dwCtrlType) {
     switch (dwCtrlType) {
-        // Handle Ctrl+C or Close events gracefully
         case CTRL_C_EVENT:
         case CTRL_CLOSE_EVENT:
         case CTRL_SHUTDOWN_EVENT:
         case CTRL_LOGOFF_EVENT:
-            if (g_userAccount && g_userPortfolio) {
-                // Save data to CSV
-                g_userAccount->logTransactionsToCSV("bank_transactions.csv");
-                g_userPortfolio->logTradesToCSV("portfolio_trades.csv");
-                g_userPortfolio->logPnLHistoryToCSV("portfolio_pnl.csv");
+            // Gracefully save logs if pointers exist
+            if (g_userAccount && g_userPortfolio && g_manager) {
+                {
+                    std::lock_guard<std::mutex> lock(g_consoleMutex);
+                    std::cout << "Closing... Saving final logs.\n";
+                }
+                g_userAccount->logTransactionsToCSV("data/bank_transactions.csv");
+                g_userPortfolio->logTradesToCSV("data/portfolio_trades.csv");
+                g_userPortfolio->logPnLHistoryToCSV("data/portfolio_pnl.csv");
+                g_manager->saveOrderBooks("output");
             }
-            // Give some time to complete the file writes before the process ends
-            Sleep(3000);
+            Sleep(2000); // give time for file writes
             return TRUE;
-
-        // Return FALSE for events you do not handle
         default:
             return FALSE;
     }
 }
 
+// ----------------------------------------------------------------------
 int main() {
-    // 1. Generate initial orders (stored in "transactions.csv")
+    // 1) Generate initial orders
     int nbAssets = 3;
-    vector<int> nbOrders {100, 150, 200};
-    vector<double> prices {150.0, 650.0, 300.0};
-    vector<double> shortRatios {0.1, 0.2, 0.15};
-    generateOrders(nbAssets, nbOrders, prices, shortRatios, "transactions.csv");
+    std::vector<int>    nbOrders     {100, 150, 200};
+    std::vector<double> prices       {150.0, 650.0, 300.0};
+    std::vector<double> shortRatios  {0.1,  0.2,  0.15};
 
-    // 2. Initialize OrderBookManager and process the orders
-    OrderBookManager manager("data/transactions.csv");
+    std::string csvPath = "data/transactions.csv";
+    generateOrdersAndReturn(nbAssets, nbOrders, prices, shortRatios, csvPath);
+
+    // 2) Create OrderBookManager and load the newly generated orders
+    OrderBookManager manager(csvPath);
     try {
         manager.loadOrders();
         manager.processOrders();
-        cout << "\nInitial Order Book:" << endl;
-        manager.displayOrderBooks();
+        {
+            std::lock_guard<std::mutex> lock(g_consoleMutex);
+            std::cout << "\nInitial Order Book:\n";
+            manager.displayOrderBooks();  
+        }
         manager.saveOrderBooks("data");
-    } catch (const exception &e) {
-        cerr << "Error: " << e.what() << endl;
+    } catch (const std::exception &e) {
+        std::lock_guard<std::mutex> lock(g_consoleMutex);
+        std::cerr << "Error: " << e.what() << std::endl;
         return 1;
     }
 
-    // 3. Create BankAccount and Portfolio objects
+    // 3) Create BankAccount and Portfolio
     BankAccount userAccount(100000.0, "USD");
     Portfolio userPortfolio;
 
-    // Assign global pointers for signal handling
-    g_userAccount = &userAccount;
+    // 4) Set up global pointers for the console handler
+    g_userAccount   = &userAccount;
     g_userPortfolio = &userPortfolio;
+    g_manager       = &manager;
 
-    // Set console control handler
+    // 5) Set the console control handler
     if (!SetConsoleCtrlHandler(ConsoleHandler, TRUE)) {
-        cerr << "Error: Could not set control handler" << endl;
+        std::lock_guard<std::mutex> lock(g_consoleMutex);
+        std::cerr << "Error: Could not set control handler" << std::endl;
         return 1;
     }
 
-    // 4. Create an instance of OrderInputHandler
+    // 6) Create the simulator and run it in a background thread
+    //    so it keeps injecting random orders for 60 seconds (example).
+    //    Adjust duration as you like (e.g., 3600 for an hour).
+    OrderBookSimulator simulator(manager);
+    std::thread simThread([&simulator]() {
+        simulator.simulateRealtime(3600);  // e.g. 1 minute
+    });
+
+    // 7) Prepare for user interaction
     OrderInputHandler inputHandler;
+    {
+        std::lock_guard<std::mutex> lock(g_consoleMutex);
+        std::cout << "\nStarting interactive simulation in the main thread...\n";
+    }
+    auto startTime = std::chrono::steady_clock::now();
+    int simulationDuration = 3600;  // run user loop for 60 seconds, for demo
 
-    // 5. Interactive simulation loop
-    cout << "\nStarting interactive simulation..." << endl;
-    auto startTime = chrono::steady_clock::now();
-    int simulationDuration = 3600; // in seconds
-
+    // 8) Main user loop (no for-loop around assets; we call displayOrderBooks() directly)
     while (true) {
-        cout << "\n===== Current Order Book =====" << endl;
-        for (const auto &statPair : manager.getStatistics()) {
-            string asset = statPair.first;
-            manager.displayOrderBook(asset);
+        {
+            std::lock_guard<std::mutex> lock(g_consoleMutex);
+            std::cout << "\n===== Current Order Book =====" << std::endl;
+            manager.displayOrderBooks();
+
+            std::cout << "\n----- Bank Account Status -----" << std::endl;
+            std::cout << "Balance: " << userAccount.getBalance() << " USD" << std::endl;
+
+            std::cout << "\n----- Portfolio -----" << std::endl;
+            userPortfolio.printHoldings();
+            userPortfolio.printGlobalPnL();
+            userPortfolio.printAssetPerformance(manager.getStatistics());
+
+            std::cout << "\nWould you like to place a manual order? (y/n): ";
         }
-
-        cout << "\n----- Bank Account Status -----" << endl;
-        cout << "Balance: " << userAccount.getBalance() << " USD" << endl;
-
-        cout << "\n----- Portfolio -----" << endl;
-        userPortfolio.printHoldings();
-        userPortfolio.printGlobalPnL();
-
-        // Print performance for each asset
-        userPortfolio.printAssetPerformance(manager.getStatistics());
-
-        cout << "\nWould you like to place a manual order? (y/n): ";
         char response;
-        cin >> response;
+        std::cin >> response;
+
         if (response == 'y' || response == 'Y') {
             // Collect order details
-            string orderType = inputHandler.getOrderType();
-            string stock = inputHandler.getStockSymbol();
-            float price = inputHandler.getFloatInput("Enter the price: ");
-            float quantity = inputHandler.getFloatInput("Enter the quantity: ");
+            {
+                std::lock_guard<std::mutex> lock(g_consoleMutex);
+                std::cout << "Placing an order...\n";
+            }
+            std::string orderType = inputHandler.getOrderType();
+            std::string stock     = inputHandler.getStockSymbol();
+            float price     = inputHandler.getFloatInput("Enter the price: ");
+            float quantity  = inputHandler.getFloatInput("Enter the quantity: ");
 
-            // Populate a new Order
+            // Build a new Order
             Order order;
-            order.id = 9999;
-            order.asset = stock;
-            order.timestamp = getCurrentDateTime();
-            order.dateTime = chrono::system_clock::now();
-            order.price = price;
-            order.quantity = quantity;
+            order.id          = 9999;
+            order.asset       = stock;
+            order.timestamp   = getCurrentDateTime();
+            order.dateTime    = std::chrono::system_clock::now();
+            order.price       = price;
+            order.quantity    = quantity;
             order.totalAmount = price * quantity;
-            order.type = orderType;
+            order.type        = orderType;
             order.isShortSell = false;
 
+            // Update the OrderBook
             manager.processNewOrder(order);
 
             // Update BankAccount and Portfolio
@@ -137,34 +165,48 @@ int main() {
                 processSellOrder(userAccount, userPortfolio, stock, quantity, price);
             }
 
-            manager.displayOrderBook(stock);
+            // Show updated book for that stock (locked output)
+            {
+                std::lock_guard<std::mutex> lock(g_consoleMutex);
+                manager.displayOrderBook(stock);
 
-            cout << "\n----- BANK ACCOUNT SUMMARY -----" << endl;
-            cout << "Balance: " << userAccount.getBalance() << " USD" << endl;
-        
-            cout << "\n----- PORTFOLIO SUMMARY -----" << endl;
-            userPortfolio.printHoldings();
-            userPortfolio.printGlobalPnL();
+                std::cout << "\n----- BANK ACCOUNT SUMMARY -----\n";
+                std::cout << "Balance: " << userAccount.getBalance() << " USD" << std::endl;
 
-            userPortfolio.printAssetPerformance(manager.getStatistics());
+                std::cout << "\n----- PORTFOLIO SUMMARY -----\n";
+                userPortfolio.printHoldings();
+                userPortfolio.printGlobalPnL();
+                userPortfolio.printAssetPerformance(manager.getStatistics());
+            }
         }
 
-        // Wait before next iteration
-        this_thread::sleep_for(chrono::seconds(5));
+        // Sleep a bit so we don't spam the console
+        std::this_thread::sleep_for(std::chrono::seconds(5));
 
-        // End simulation after the specified duration
-        auto currentTime = chrono::steady_clock::now();
-        auto elapsed = chrono::duration_cast<chrono::seconds>(currentTime - startTime).count();
+        // Check if we reached the user loop's end
+        auto now = std::chrono::steady_clock::now();
+        auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - startTime).count();
         if (elapsed >= simulationDuration) {
             break;
         }
     }
 
-    // 6. Save final state to CSV files
+    // 9) Join the simulator thread
+    {
+        std::lock_guard<std::mutex> lock(g_consoleMutex);
+        std::cout << "\nMain user loop finished. Waiting for simulator to end...\n";
+    }
+    simThread.join();
+
+    // 10) Save final state
     manager.saveOrderBooks("output");
     userAccount.logTransactionsToCSV("data/bank_transactions.csv");
     userPortfolio.logTradesToCSV("data/portfolio_trades.csv");
     userPortfolio.logPnLHistoryToCSV("data/portfolio_pnl.csv");
 
+    {
+        std::lock_guard<std::mutex> lock(g_consoleMutex);
+        std::cout << "Simulation complete. Exiting...\n";
+    }
     return 0;
 }
