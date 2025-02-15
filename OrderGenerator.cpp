@@ -1,4 +1,4 @@
-#include "order_generator.h"
+#include "OrderGenerator.h"
 
 using namespace std;
 
@@ -105,7 +105,7 @@ void generateOrders(int nbAssets, const vector<int>& nbOrders,
             double price {roundToTickSize(generateRandomNormal(meanPrice, 1.0), 0.1)};
             double quantity {generateRandomUniform(0.1, 1000.0)};
             double totalAmount {price * quantity};
-            std::string timestamp {generateRandomTimestamp()};
+            string timestamp {generateRandomTimestamp()};
             bool isShortSell {(j < shortSellOrders)};
             int orderID {static_cast<int>(round(generateRandomUniform(1, 300)))};
 

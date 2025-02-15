@@ -1,7 +1,7 @@
 #include "OrderInputHandler.h"
 #include <iostream>
 #include <algorithm>
-#include "order_generator.h"
+#include "OrderGenerator.h"
 
 OrderInputHandler::OrderInputHandler() {
     loadValidStocks();

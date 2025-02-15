@@ -19,7 +19,6 @@ private:
     map<string, uniform_real_distribution<>> volumeDists;
     map<string, bernoulli_distribution> marketLimitDists;
     map<string, bernoulli_distribution> buySellDists;
-    map<string, int> currentOrderIds;
 
     Order generateOrder(const string& asset, double minPrice, double maxPrice, 
                        double midPrice, double spread);

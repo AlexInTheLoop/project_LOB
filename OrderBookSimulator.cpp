@@ -19,14 +19,12 @@ void OrderBookSimulator::initializeGenerators() {
         volumeDists[asset] = uniform_real_distribution<>(0.1, 1000.0);
         marketLimitDists[asset] = bernoulli_distribution(0.5);
         buySellDists[asset] = bernoulli_distribution(0.5);
-        currentOrderIds[asset] = 1000;
     }
 }
 
 Order OrderBookSimulator::generateOrder(const string& asset, double minPrice, 
                                       double maxPrice, double midPrice, double spread) {
     Order order;
-    order.id = currentOrderIds[asset]++;
     order.asset = asset;
 
     bool isBuyOrder{buySellDists[asset](generators[asset])};
@@ -41,7 +39,7 @@ Order OrderBookSimulator::generateOrder(const string& asset, double minPrice,
     if (isMarketOrder) {
         order.price = isBuyOrder ? maxPrice : minPrice;
     } else {
-        normal_distribution<> normalDist(midPrice, spread);
+        normal_distribution<> normalDist(midPrice, 1);
         order.price = normalDist(generators[asset]);
 
         if (isBuyOrder && order.price >= maxPrice) {

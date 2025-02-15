@@ -1,7 +1,7 @@
 #include <windows.h>
 #undef byte
 
-#include "order_generator.h"
+#include "OrderGenerator.h"
 #include "OrderBookManager.h"
 #include "OrderBookSimulator.h"
 #include "BankAccount.h"
@@ -55,13 +55,13 @@ int main() {
     generateOrders(nbAssets, nbOrders, prices, shortRatios, "transactions.csv");
 
     // 2. Initialize OrderBookManager and process the orders
-    OrderBookManager manager("transactions.csv");
+    OrderBookManager manager("data/transactions.csv");
     try {
         manager.loadOrders();
         manager.processOrders();
         cout << "\nInitial Order Book:" << endl;
         manager.displayOrderBooks();
-        manager.saveOrderBooks("output");
+        manager.saveOrderBooks("data");
     } catch (const exception &e) {
         cerr << "Error: " << e.what() << endl;
         return 1;
@@ -162,9 +162,9 @@ int main() {
 
     // 6. Save final state to CSV files
     manager.saveOrderBooks("output");
-    userAccount.logTransactionsToCSV("bank_transactions.csv");
-    userPortfolio.logTradesToCSV("portfolio_trades.csv");
-    userPortfolio.logPnLHistoryToCSV("portfolio_pnl.csv");
+    userAccount.logTransactionsToCSV("data/bank_transactions.csv");
+    userPortfolio.logTradesToCSV("data/portfolio_trades.csv");
+    userPortfolio.logPnLHistoryToCSV("data/portfolio_pnl.csv");
 
     return 0;
 }
