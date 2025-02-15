@@ -4,10 +4,12 @@
 #include <string>
 #include <vector>
 
+using namespace std;
+
 // Structure to record a transaction (deposit or withdrawal)
 struct Transaction {
-    std::string dateTime;         // Date and time of the transaction
-    std::string type;             // "Deposit" or "Withdrawal"
+    string dateTime;         // Date and time of the transaction
+    string type;             // "Deposit" or "Withdrawal"
     double amount;                // Amount deposited or withdrawn
     double resultingBalance;      // Balance after the transaction
 };
@@ -22,10 +24,10 @@ public :
 
 private:
     double balance;
-    std::string currency;
-    std::vector<Transaction> transactionHistory;
+    string currency;
+    vector<Transaction> transactionHistory;
 
-    void logTransaction(const std::string &type, double amount, const std::string &dateTime);
+    void logTransaction(const string &type, double amount, const string &dateTime);
 };
 
 #endif 
