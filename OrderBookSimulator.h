@@ -21,7 +21,7 @@ private:
     map<string, bernoulli_distribution> buySellDists;
 
     Order generateOrder(const string& asset, double minPrice, double maxPrice, 
-                       double midPrice, double spread);
+                       double midPrice);
     void initializeGenerators();
 
 public:

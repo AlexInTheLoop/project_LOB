@@ -2,7 +2,7 @@
 
 using namespace std;
 
-int TIME_INTERVAL{30};
+int TIME_INTERVAL{1};
 
 OrderBookSimulator::OrderBookSimulator(OrderBookManager& ob): orderBook(ob) {
     const auto& stats{orderBook.getStatistics()};
@@ -23,7 +23,7 @@ void OrderBookSimulator::initializeGenerators() {
 }
 
 Order OrderBookSimulator::generateOrder(const string& asset, double minPrice, 
-                                      double maxPrice, double midPrice, double spread) {
+                                      double maxPrice, double midPrice) {
     Order order;
     order.asset = asset;
 
@@ -38,8 +38,9 @@ Order OrderBookSimulator::generateOrder(const string& asset, double minPrice,
 
     if (isMarketOrder) {
         order.price = isBuyOrder ? maxPrice : minPrice;
+        order.quantity = order.quantity * 10;
     } else {
-        normal_distribution<> normalDist(midPrice, spread*3);
+        normal_distribution<> normalDist(midPrice, 3);
         order.price = normalDist(generators[asset]);
 
         if (isBuyOrder && order.price >= maxPrice) {
@@ -90,13 +91,12 @@ void OrderBookSimulator::simulateRealtime(int durationSeconds) {
             double minPrice{assetStats.bidPrice};
             double maxPrice{assetStats.askPrice};
             double midPrice{assetStats.midPrice};
-            double spread{assetStats.bidAskSpread};
 
             if (minPrice <= 0 || maxPrice <= 0 || midPrice <= 0) {
                 continue;
             }
 
-            Order newOrder{generateOrder(asset, minPrice, maxPrice, midPrice, spread)};
+            Order newOrder{generateOrder(asset, minPrice, maxPrice, midPrice)};
             orderBook.processNewOrder(newOrder);
             orderBook.displayOrderBook(asset);
         }
