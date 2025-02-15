@@ -128,7 +128,6 @@ int main() {
             order.type = orderType;
             order.isShortSell = false;
 
-            // Send the order to the OrderBookManager
             manager.processNewOrder(order);
 
             // Update BankAccount and Portfolio
@@ -138,8 +137,16 @@ int main() {
                 processSellOrder(userAccount, userPortfolio, stock, quantity, price);
             }
 
-            // Display the updated order book for the traded asset
             manager.displayOrderBook(stock);
+
+            cout << "\n----- BANK ACCOUNT SUMMARY -----" << endl;
+            cout << "Balance: " << userAccount.getBalance() << " USD" << endl;
+        
+            cout << "\n----- PORTFOLIO SUMMARY -----" << endl;
+            userPortfolio.printHoldings();
+            userPortfolio.printGlobalPnL();
+
+            userPortfolio.printAssetPerformance(manager.getStatistics());
         }
 
         // Wait before next iteration
