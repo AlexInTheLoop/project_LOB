@@ -1,4 +1,3 @@
-
 #ifndef ORDER_INPUT_HANDLER_H
 #define ORDER_INPUT_HANDLER_H
 

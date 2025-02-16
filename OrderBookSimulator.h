@@ -8,19 +8,19 @@
 #include <iomanip>
 #include <sstream>
 #include <map>
-
-using namespace std;
+#include <vector>
+#include <string>
 
 class OrderBookSimulator {
 private:
     OrderBookManager& orderBook;
-    vector<string> assets;
-    map<string, mt19937> generators;
-    map<string, uniform_real_distribution<>> volumeDists;
-    map<string, bernoulli_distribution> marketLimitDists;
-    map<string, bernoulli_distribution> buySellDists;
+    std::vector<std::string> assets;
+    std::map<std::string, std::mt19937> generators;
+    std::map<std::string, std::uniform_real_distribution<>> volumeDists;
+    std::map<std::string, std::bernoulli_distribution> marketLimitDists;
+    std::map<std::string, std::bernoulli_distribution> buySellDists;
 
-    Order generateOrder(const string& asset, double minPrice, double maxPrice, 
+    Order generateOrder(const std::string& asset, double minPrice, double maxPrice, 
                        double midPrice);
     void initializeGenerators();
 

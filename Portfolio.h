@@ -17,15 +17,15 @@ struct Trade {
 };
 
 struct Holding{
-    double quantity =0.0;
-    double averagePrice =0.0;
+    double quantity{0.0};
+    double averagePrice{0.0};
 };
 
 struct PnLRecord{
     std::string dateTime;
     std::string stock;
     double realizedPnL;
-    double quantity =0.0;
+    double quantity{0.0};
 };
 
 class Portfolio {
@@ -34,7 +34,7 @@ public:
 
     void updateBuy(const std::string &stock, double quantity, double price, const std::string &dateTime);
 
-    void updateSell(const std::string & stock, double quantity, double price, const std::string &dateTime);
+    void updateSell(const std::string &stock, double quantity, double price, const std::string &dateTime);
 
     void printHoldings() const;
 

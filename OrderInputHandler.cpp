@@ -57,7 +57,7 @@ float OrderInputHandler::getFloatInput(const string &prompt) {
         if (cin >> value)
             break;
         else {
-            cout << "Invalid input. Please enter a number." << std::endl;
+            cout << "Invalid input. Please enter a number." << endl;
             cin.clear();
             cin.ignore(10000, '\n');
         }

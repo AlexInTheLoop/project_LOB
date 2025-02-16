@@ -47,14 +47,14 @@ void generateOrders(int nbAssets, const vector<int>& nbOrders,
                    const vector<double>& prices, const vector<double>& shortRatios,
                    const string& outputFilename) {
     if (nbAssets > static_cast<int>(ASSETS.size())) {
-        cerr << "Erreur : Le nombre d'actifs voulu est superieur au nombre d'actifs disponibles" << endl;
+        cerr << "Error: The amount of assets requested is higher than the number of available assets" << endl;
         return;
     }
 
     if (nbOrders.size() != static_cast<size_t>(nbAssets) || 
         prices.size() != static_cast<size_t>(nbAssets) ||
         (shortRatios.size() != 1 && shortRatios.size() != static_cast<size_t>(nbAssets))) {
-        cerr << "Erreur : Les vecteurs en arguments n'ont pas la meme taille." << endl;
+        cerr << "Error: Vectors must have the same dimension" << endl;
         return;
     }
 
@@ -73,7 +73,7 @@ void generateOrders(int nbAssets, const vector<int>& nbOrders,
 
     ofstream file(outputFilename);
     if (!file.is_open()) {
-        std::cerr << "Erreur : Le fichier ne peut etre ouvert." << std::endl;
+        cerr << "Error: File access denied" << endl;
         return;
     }
 
@@ -118,61 +118,61 @@ void generateOrders(int nbAssets, const vector<int>& nbOrders,
     }
 
     file.close();
-    cout << "Ordres produits dans le fichier : " << outputFilename << endl;
+    cout << "Orders generated in the file: " << outputFilename << endl;
 }
 
 
-std::vector<Order> generateOrdersAndReturn(
+vector<Order> generateOrdersAndReturn(
     int nbAssets, 
-    const std::vector<int>& nbOrders,
-    const std::vector<double>& prices, 
-    const std::vector<double>& shortRatios,
-    const std::string& outputFilename
+    const vector<int>& nbOrders,
+    const vector<double>& prices, 
+    const vector<double>& shortRatios,
+    const string& outputFilename
 ) {
-    std::vector<Order> generatedOrders;
+    vector<Order> generatedOrders;
 
     if (nbAssets > static_cast<int>(ASSETS.size())) {
-        std::cerr << "Erreur : Le nombre d'actifs voulu est superieur au nombre d'actifs disponibles" << std::endl;
+        cerr << "Error: The amount of assets requested is higher than the number of available assets" << endl;
         return generatedOrders; // empty
     }
 
     if (nbOrders.size() != static_cast<size_t>(nbAssets) || 
         prices.size()   != static_cast<size_t>(nbAssets) ||
         (shortRatios.size() != 1 && shortRatios.size() != static_cast<size_t>(nbAssets))) {
-        std::cerr << "Erreur : Les vecteurs en arguments n'ont pas la meme taille." << std::endl;
+        cerr << "Error: Vectors must have the same dimension" << endl;
         return generatedOrders; // empty
     }
 
-    std::set<int> selectedAssetsIndices;
+    set<int> selectedAssetsIndices;
     while (selectedAssetsIndices.size() < static_cast<size_t>(nbAssets)) {
         selectedAssetsIndices.insert(static_cast<int>(generateRandomUniform(0, ASSETS.size())));
     }
 
-    std::vector<std::string> selectedAssets;
+    vector<string> selectedAssets;
     for (int idx : selectedAssetsIndices) {
         selectedAssets.push_back(ASSETS[idx]);
     }
 
-    std::vector<double> adjustedShortRatios = (shortRatios.size() == 1)
-        ? std::vector<double>(nbAssets, shortRatios[0])
+    vector<double> adjustedShortRatios = (shortRatios.size() == 1)
+        ? vector<double>(nbAssets, shortRatios[0])
         : shortRatios;
 
-    std::ofstream file(outputFilename);
+    ofstream file(outputFilename);
     if (!file.is_open()) {
-        std::cerr << "Erreur : Le fichier ne peut etre ouvert." << std::endl;
+        cerr << "Error: File access denied" << endl;
         return generatedOrders; // empty
     }
 
     file << "ID,Asset,Timestamp,Type,Is Short Sell,Price,Quantity,Total Amount\n";
 
     for (size_t i = 0; i < selectedAssets.size(); ++i) {
-        const std::string& asset = selectedAssets[i];
+        const string& asset = selectedAssets[i];
         double meanPrice  = prices[i];
         double shortRatio = adjustedShortRatios[i];
         int ordersForAsset = nbOrders[i];
 
-        int totalSellOrders  = static_cast<int>(std::round(ordersForAsset / 2.0));
-        int shortSellOrders  = static_cast<int>(std::round(totalSellOrders * shortRatio));
+        int totalSellOrders  = static_cast<int>(round(ordersForAsset / 2.0));
+        int shortSellOrders  = static_cast<int>(round(totalSellOrders * shortRatio));
         int totalBuyOrders   = ordersForAsset - totalSellOrders;
 
         // Generate BUY orders
@@ -180,13 +180,13 @@ std::vector<Order> generateOrdersAndReturn(
             double price = roundToTickSize(generateRandomNormal(meanPrice, 1.0), 0.1);
             double quantity = generateRandomUniform(0.1, 1000.0);
             double totalAmount = price * quantity;
-            std::string timestamp = generateRandomTimestamp();
-            int orderID = static_cast<int>(std::round(generateRandomUniform(1, 300)));
+            string timestamp = generateRandomTimestamp();
+            int orderID = static_cast<int>(round(generateRandomUniform(1, 300)));
 
             // Write to CSV
             file << orderID << "," << asset << "," << timestamp << ","
                  << "BUY,False," << price << "," << quantity << ","
-                 << std::setprecision(15) << totalAmount << "\n";
+                 << setprecision(15) << totalAmount << "\n";
 
             Order newOrder;
             newOrder.id          = orderID;
@@ -199,9 +199,9 @@ std::vector<Order> generateOrdersAndReturn(
             newOrder.totalAmount = totalAmount;
 
             tm tmStruct = {};
-            std::istringstream ss(timestamp);
-            ss >> std::get_time(&tmStruct, "%Y-%m-%d %H:%M:%S");
-            newOrder.dateTime = std::chrono::system_clock::from_time_t(std::mktime(&tmStruct));
+            istringstream ss(timestamp);
+            ss >> get_time(&tmStruct, "%Y-%m-%d %H:%M:%S");
+            newOrder.dateTime = chrono::system_clock::from_time_t(mktime(&tmStruct));
 
             generatedOrders.push_back(newOrder);
         }
@@ -211,14 +211,14 @@ std::vector<Order> generateOrdersAndReturn(
             double price = roundToTickSize(generateRandomNormal(meanPrice, 1.0), 0.1);
             double quantity = generateRandomUniform(0.1, 1000.0);
             double totalAmount = price * quantity;
-            std::string timestamp = generateRandomTimestamp();
+            string timestamp = generateRandomTimestamp();
             bool isShortSell = (j < shortSellOrders);
-            int orderID = static_cast<int>(std::round(generateRandomUniform(1, 300)));
+            int orderID = static_cast<int>(round(generateRandomUniform(1, 300)));
 
             file << orderID << "," << asset << "," << timestamp << ","
                  << "SELL," << (isShortSell ? "True" : "False") << ","
                  << price << "," << quantity << ","
-                 << std::setprecision(15) << totalAmount << "\n";
+                 << setprecision(15) << totalAmount << "\n";
 
             Order newOrder;
             newOrder.id          = orderID;
@@ -231,15 +231,15 @@ std::vector<Order> generateOrdersAndReturn(
             newOrder.totalAmount = totalAmount;
 
             tm tmStruct = {};
-            std::istringstream ss(timestamp);
-            ss >> std::get_time(&tmStruct, "%Y-%m-%d %H:%M:%S");
-            newOrder.dateTime = std::chrono::system_clock::from_time_t(std::mktime(&tmStruct));
+            istringstream ss(timestamp);
+            ss >> get_time(&tmStruct, "%Y-%m-%d %H:%M:%S");
+            newOrder.dateTime = chrono::system_clock::from_time_t(mktime(&tmStruct));
 
             generatedOrders.push_back(newOrder);
         }
     }
 
     file.close();
-    std::cout << "Ordres produits dans le fichier : " << outputFilename << std::endl;
+    cout << "Orders generated in the file: " << outputFilename << endl;
     return generatedOrders;
 }

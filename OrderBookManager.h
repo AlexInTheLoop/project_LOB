@@ -11,25 +11,23 @@
 #include <iomanip>
 #include <chrono>
 
-using namespace std;
-
 struct Order {
     int id;
-    string asset;
-    string timestamp;
-    string type;
+    std::string asset;
+    std::string timestamp;
+    std::string type;
     bool isShortSell;
     double price;
     double quantity;
     double totalAmount;
-    chrono::system_clock::time_point dateTime;
+    std::chrono::system_clock::time_point dateTime;
 };
 
 struct OrderBookEntry {
     int id;
     double price;
     double quantity;
-    chrono::system_clock::time_point timestamp;
+    std::chrono::system_clock::time_point timestamp;
 };
 
 struct OrderBookStatistics {
@@ -48,24 +46,24 @@ struct OrderBookStatistics {
 
 class OrderBookManager {
 private:
-    string csvPath;
-    vector<Order> orders;
-    map<string, map<double, OrderBookEntry, greater<>>> bidBooks;
-    map<string, map<double, OrderBookEntry>> askBooks;
-    map<string, OrderBookStatistics> statistics;
+    std::string csvPath;
+    std::vector<Order> orders;
+    std::map<std::string, std::map<double, OrderBookEntry, std::greater<>>> bidBooks;
+    std::map<std::string, std::map<double, OrderBookEntry>> askBooks;
+    std::map<std::string, OrderBookStatistics> statistics;
 
-    chrono::system_clock::time_point parseTimestamp(const string& timestamp);
-    void updateStatistics(const string& asset);
+    std::chrono::system_clock::time_point parseTimestamp(const std::string& timestamp);
+    void updateStatistics(const std::string& asset);
 
 public:
-    OrderBookManager(const string& path);
+    OrderBookManager(const std::string& path);
     void loadOrders();
     void processOrders();
     void displayOrderBooks();
-    void displayOrderBook(const string& asset);
-    void saveOrderBooks(const string& outputPath);
+    void displayOrderBook(const std::string& asset);
+    void saveOrderBooks(const std::string& outputPath);
     void processNewOrder(const Order& order);
-    const map<string, OrderBookStatistics>& getStatistics() const { return statistics; }
+    const std::map<std::string, OrderBookStatistics>& getStatistics() const { return statistics; }
 };
 
 #endif

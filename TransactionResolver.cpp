@@ -5,7 +5,7 @@
 
 using namespace std;
 
-std::string getCurrentDateTime(){
+string getCurrentDateTime(){
     time_t now = time(0);
     tm *ltm = localtime(&now);
 
@@ -14,7 +14,7 @@ std::string getCurrentDateTime(){
     sprintf(buffer, "%04d-%02d-%02d %02d:%02d:%02d",
         1900 + ltm->tm_year, 1 + ltm->tm_mon, ltm->tm_mday,
         ltm->tm_hour, ltm->tm_min, ltm->tm_sec);
-return std::string(buffer);
+return string(buffer);
 }
 
 void processBuyOrder(BankAccount &account, Portfolio &portfolio,

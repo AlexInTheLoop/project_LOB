@@ -122,7 +122,7 @@ void OrderBookManager::displayOrderBooks() {
 void OrderBookManager::displayOrderBook(const string& asset) {
     auto it{bidBooks.find(asset)};
 
-    cout << "\nCarnet d'ordre de " << asset << "\n";
+    cout << "\nLimit Order Book of " << asset << "\n";
     cout << string(60, '=') << "\n";
     
     cout << setw(15) << left << "BID VOLUME" 
@@ -155,19 +155,19 @@ void OrderBookManager::displayOrderBook(const string& asset) {
     }
 
     const auto& stats{statistics[asset]};
-    cout << "\nStatistiques " << asset << ":\n";
+    cout << "\nStatistics " << asset << ":\n";
     cout << fixed << setprecision(3);
-    cout << "Prix d'execution moyen : " << stats.averageExecutedPrice << "\n";
-    cout << "Volume total echange : " << stats.totalTradedQuantity << "\n";
-    cout << "Montant total echange : " << fixed << stats.totalTradedAmount << "\n";
-    cout << "Prix Bid : " << stats.bidPrice << "\n";
-    cout << "Prix Ask : " << stats.askPrice << "\n";
-    cout << "Prix mid : " << stats.midPrice << "\n";
-    cout << "Bid-ask spread : " << stats.bidAskSpread << "\n";
-    cout << "Profondeur du Bid : " << stats.bidDepth << "\n";
-    cout << "Profondeur de l'Ask : " << stats.askDepth << "\n";
-    cout << "Montant total a l'achat : " << fixed << stats.totalBidAmount << "\n";
-    cout << "Montant total a la vente : " << fixed << stats.totalAskAmount << "\n";
+    cout << "Average execution price: " << stats.averageExecutedPrice << "\n";
+    cout << "Total volume traded: " << stats.totalTradedQuantity << "\n";
+    cout << "Total amount traded: " << fixed << stats.totalTradedAmount << "\n";
+    cout << "Best Bid: " << stats.bidPrice << "\n";
+    cout << "Best Ask: " << stats.askPrice << "\n";
+    cout << "Mid Price: " << stats.midPrice << "\n";
+    cout << "Bid-ask Spread: " << stats.bidAskSpread << "\n";
+    cout << "Bid Depth: " << stats.bidDepth << "\n";
+    cout << "Ask Depth: " << stats.askDepth << "\n";
+    cout << "Total amount Bid side: " << fixed << stats.totalBidAmount << "\n";
+    cout << "Total amount Ask side: " << fixed << stats.totalAskAmount << "\n";
 }
 
 void OrderBookManager::saveOrderBooks(const string& outputPath) {
@@ -182,7 +182,7 @@ void OrderBookManager::saveOrderBooks(const string& outputPath) {
         ofstream file(filename, ios::out | ios::trunc);
         
         if (!file.is_open()) {
-            cerr << "Erreur : impossible d'ouvrir le fichier " << filename << "\n";
+            cerr << "Error: file access denied for" << filename << "\n";
             continue;
         }
 

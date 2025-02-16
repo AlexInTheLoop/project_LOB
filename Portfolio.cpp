@@ -6,7 +6,6 @@
 #include <vector>
 
 
-
 using namespace std;
 
 Portfolio::Portfolio() : globalPnL(0.0) {
@@ -72,7 +71,7 @@ void Portfolio::printGlobalPnL() const{
 }
 
 
-void Portfolio::logTradesToCSV(const std::string &filename) const {
+void Portfolio::logTradesToCSV(const string &filename) const {
     ofstream file(filename);
     if (!file.is_open()) {
         cerr << "Erreur d'ouverture du fichier CSV des trades du portefeuille." << endl;
@@ -87,7 +86,7 @@ void Portfolio::logTradesToCSV(const std::string &filename) const {
     cout << "Historique des trades du portefeuille enregistré dans " << filename << endl;
 }
 
-void Portfolio::logPnLHistoryToCSV(const std::string &filename) const {
+void Portfolio::logPnLHistoryToCSV(const string &filename) const {
     ofstream file(filename);
     if (!file.is_open()) {
         cerr << "Error opening portfolio PnL CSV file." << endl;

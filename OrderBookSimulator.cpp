@@ -2,7 +2,7 @@
 
 using namespace std;
 
-int TIME_INTERVAL{1};
+int TIME_INTERVAL{20};
 
 OrderBookSimulator::OrderBookSimulator(OrderBookManager& ob): orderBook(ob) {
     const auto& stats{orderBook.getStatistics()};
@@ -61,12 +61,12 @@ Order OrderBookSimulator::generateOrder(const string& asset, double minPrice,
     order.timestamp = ss.str();
     order.dateTime = now;
 
-    cout << "\n==== Nouvel Ordre pour " << asset << " ====" << endl;
-    cout << "Horodatage : " << order.timestamp << endl;
-    cout << "Type : " << order.type << " (" << orderCategory << ")" << endl;
-    cout << "Prix : " << fixed << setprecision(3) << order.price << endl;
-    cout << "Quantite : " << order.quantity << endl;
-    cout << "Montant total : " << order.totalAmount << endl;
+    cout << "\n==== New order for " << asset << " ====" << endl;
+    cout << "Timestamp: " << order.timestamp << endl;
+    cout << "Type: " << order.type << " (" << orderCategory << ")" << endl;
+    cout << "Price: " << fixed << setprecision(3) << order.price << endl;
+    cout << "Quantity: " << order.quantity << endl;
+    cout << "Total Amount: " << order.totalAmount << endl;
     cout << "================================" << endl;
 
     return order;
@@ -75,12 +75,11 @@ Order OrderBookSimulator::generateOrder(const string& asset, double minPrice,
 void OrderBookSimulator::simulateRealtime(int durationSeconds) {
     auto startTime{chrono::steady_clock::now()};
     bool running{true};
-    cout << "Debut de la simulation\n" << endl;
-    cout << "Actifs disponibles : ";
+    cout << "Simulation starting...\n" << endl;
+    cout << "Available assets: ";
     for (const auto& asset : assets) {
         cout << asset << " ";
     }
-    cout << "\nEntrer Ctrl+C pour stopper la simulation" << endl;
 
     while (running) {
         const auto& stats{orderBook.getStatistics()};

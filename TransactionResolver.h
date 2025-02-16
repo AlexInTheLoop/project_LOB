@@ -10,7 +10,6 @@ std::string getCurrentDateTime();
 void processBuyOrder(BankAccount &account, Portfolio &portfolio,
                      const std::string &stock, double quantity, double price);
 
-
 void processSellOrder(BankAccount &account, Portfolio &portfolio,
                       const std::string &stock, double quantity, double price);
 
