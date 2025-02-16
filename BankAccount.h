@@ -6,12 +6,11 @@
 
 using namespace std;
 
-// Structure to record a transaction (deposit or withdrawal)
 struct Transaction {
-    string dateTime;         // Date and time of the transaction
-    string type;             // "Deposit" or "Withdrawal"
-    double amount;                // Amount deposited or withdrawn
-    double resultingBalance;      // Balance after the transaction
+    string dateTime;
+    string type; 
+    double amount;
+    double resultingBalance;
 };
 
 class BankAccount {

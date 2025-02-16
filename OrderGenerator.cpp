@@ -129,7 +129,6 @@ std::vector<Order> generateOrdersAndReturn(
     const std::vector<double>& shortRatios,
     const std::string& outputFilename
 ) {
-    // We'll collect and return these
     std::vector<Order> generatedOrders;
 
     if (nbAssets > static_cast<int>(ASSETS.size())) {
@@ -164,7 +163,6 @@ std::vector<Order> generateOrdersAndReturn(
         return generatedOrders; // empty
     }
 
-    // CSV header
     file << "ID,Asset,Timestamp,Type,Is Short Sell,Price,Quantity,Total Amount\n";
 
     for (size_t i = 0; i < selectedAssets.size(); ++i) {
@@ -190,7 +188,6 @@ std::vector<Order> generateOrdersAndReturn(
                  << "BUY,False," << price << "," << quantity << ","
                  << std::setprecision(15) << totalAmount << "\n";
 
-            // Also store in the vector
             Order newOrder;
             newOrder.id          = orderID;
             newOrder.asset       = asset;
@@ -201,9 +198,6 @@ std::vector<Order> generateOrdersAndReturn(
             newOrder.quantity    = quantity;
             newOrder.totalAmount = totalAmount;
 
-            // We'll parse timestamp into dateTime as well (if you want).
-            // Or you could leave it for the Manager's loadOrders() to parse.
-            // For completeness, let's do it:
             tm tmStruct = {};
             std::istringstream ss(timestamp);
             ss >> std::get_time(&tmStruct, "%Y-%m-%d %H:%M:%S");
@@ -221,13 +215,11 @@ std::vector<Order> generateOrdersAndReturn(
             bool isShortSell = (j < shortSellOrders);
             int orderID = static_cast<int>(std::round(generateRandomUniform(1, 300)));
 
-            // Write to CSV
             file << orderID << "," << asset << "," << timestamp << ","
                  << "SELL," << (isShortSell ? "True" : "False") << ","
                  << price << "," << quantity << ","
                  << std::setprecision(15) << totalAmount << "\n";
 
-            // Also store in vector
             Order newOrder;
             newOrder.id          = orderID;
             newOrder.asset       = asset;
@@ -238,7 +230,6 @@ std::vector<Order> generateOrdersAndReturn(
             newOrder.quantity    = quantity;
             newOrder.totalAmount = totalAmount;
 
-            // parse into dateTime
             tm tmStruct = {};
             std::istringstream ss(timestamp);
             ss >> std::get_time(&tmStruct, "%Y-%m-%d %H:%M:%S");
@@ -250,7 +241,5 @@ std::vector<Order> generateOrdersAndReturn(
 
     file.close();
     std::cout << "Ordres produits dans le fichier : " << outputFilename << std::endl;
-
-    // Return the in-memory vector of all generated orders
     return generatedOrders;
 }

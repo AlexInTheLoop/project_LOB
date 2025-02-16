@@ -51,7 +51,6 @@ BOOL WINAPI ConsoleHandler(DWORD dwCtrlType) {
     }
 }
 
-// ----------------------------------------------------------------------
 int main() {
     // 1) Generate initial orders
     int nbAssets = 3;
@@ -96,11 +95,9 @@ int main() {
     }
 
     // 6) Create the simulator and run it in a background thread
-    //    so it keeps injecting random orders for 60 seconds (example).
-    //    Adjust duration as you like (e.g., 3600 for an hour).
     OrderBookSimulator simulator(manager);
     std::thread simThread([&simulator]() {
-        simulator.simulateRealtime(3600);  // e.g. 1 minute
+        simulator.simulateRealtime(3600); 
     });
 
     // 7) Prepare for user interaction
@@ -110,9 +107,9 @@ int main() {
         std::cout << "\nStarting interactive simulation in the main thread...\n";
     }
     auto startTime = std::chrono::steady_clock::now();
-    int simulationDuration = 3600;  // run user loop for 60 seconds, for demo
+    int simulationDuration = 3600;
 
-    // 8) Main user loop (no for-loop around assets; we call displayOrderBooks() directly)
+    // 8) Main user loo
     while (true) {
         {
             std::lock_guard<std::mutex> lock(g_consoleMutex);
@@ -180,7 +177,6 @@ int main() {
             }
         }
 
-        // Sleep a bit so we don't spam the console
         std::this_thread::sleep_for(std::chrono::seconds(5));
 
         // Check if we reached the user loop's end
