@@ -74,7 +74,7 @@ void Portfolio::printGlobalPnL() const{
 void Portfolio::logTradesToCSV(const string &filename) const {
     ofstream file(filename);
     if (!file.is_open()) {
-        cerr << "Erreur d'ouverture du fichier CSV des trades du portefeuille." << endl;
+        cerr << "Error: file access denied" << endl;
         return;
     }
     file << "DateTime,Stock,TradeType,Quantity,Price,TotalAmount\n";
@@ -83,7 +83,7 @@ void Portfolio::logTradesToCSV(const string &filename) const {
              << trade.quantity << "," << trade.price << "," << trade.totalAmount << "\n";
     }
     file.close();
-    cout << "Historique des trades du portefeuille enregistré dans " << filename << endl;
+    cout << "Portfolio trades saved in the file " << filename << endl;
 }
 
 void Portfolio::logPnLHistoryToCSV(const string &filename) const {
